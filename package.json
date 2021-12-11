@@ -1,0 +1,41 @@
+{
+  "name": "hospital-assistant",
+  "version": "1.0.6",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "echarts": "^5.2.1",
+    "element-ui": "^2.15.1",
+    "image-webpack-loader": "^7.0.1",
+    "kim-vue-touch": "^1.1.5",
+    "moment": "^2.29.1",
+    "recorder-core": "^1.1.21021500",
+    "sha1": "^1.1.1",
+    "vue": "^2.6.11",
+    "weixin-js-sdk": "^1.6.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "vue-template-compiler": "^2.6.11",
+    "lib-flexible": "^0.3.2",
+    "moment": "^2.29.1",
+    "node-sass": "^4.14.1",
+    "axios": "^0.21.1",
+    "lodash": "^4.17.15",
+    "normalize-wheel": "^1.0.1",
+    "sass-loader": "^7.1.0",
+    "vue": "^3.0.5",
+    "vue-router": "^4.0.4"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
