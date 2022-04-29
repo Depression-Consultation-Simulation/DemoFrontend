@@ -1,16 +1,14 @@
 <template>
-  <div id="app">
-    <home></home>
-  </div>
+  <router-view/>
 </template>
 
 <script>
-import home from './components/aiHome.vue'
+// import home from './components/bartBot.vue'
 
 export default {
-  name: 'App',
-  components: {
-    home
-  }
+  // name: 'App',
+  // components: {
+  //   home
+  // }
 }
 </script>

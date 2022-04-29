@@ -1,32 +1,45 @@
-// import Vue from 'vue'
-// import VueRouter from 'vue-router'
-// import Home from '../views/Home.vue'
-// import BasicLay from '../layouts/Basiclay'
-// Vue.use(VueRouter)
+import Vue from 'vue'
+import VueRouter from 'vue-router'
+import bartBot from "../components/bartBot";
+import IntroView from "../components/IntroView";
+import baseBot from "../components/baseBot";
+import cptBot from "../components/cptBot";
+import Result from "../components/Result";
+import Thank from "../components/Thank";
 
-// const routes = [
-//     {
-//         path: '/',
-//         name: 'Home',
-//         component: Home
-//     },
-//    // this generates a separate chunk (about.[hash].js) for this route
-//         // which is lazy-loaded when the route is visited.
-//         component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
-//     }, {
-//         path: '/about',
-//         name: 'About',
-//         // route level code-splitting
-        
-//     {
-//         path: '/test',
-//         name: '',
-//         component: BasicLay
-//     }
-// ]
+Vue.use(VueRouter);
 
-// const router = new VueRouter({
-//     routes
-// })
+const routes= [
+    {
+        path: '/',
+        component: IntroView
+    },
+    {
+        path: '/bot1',
+        component: baseBot
+    },
+    {
+        path: '/bot2',
+        component: bartBot
+    },
+    {
+        path: '/bot3',
+        component: cptBot
+    },
+    {
+        path: "/result",
+        component : Result
+    },
+    {
+        path: "/thank",
+        component : Thank
+    }
+];
 
-// export default router;
+const router = new VueRouter({
+    mode:"history",
+    routes
+});
+
+
+export default router;

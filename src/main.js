@@ -6,6 +6,7 @@ import wx from 'weixin-js-sdk';
 import vueTouch from 'kim-vue-touch'
 import './element-variables.scss';
 import * as echarts from 'echarts';
+import router from './router/index'
 Vue.prototype.$echarts = echarts;
 Vue.use(vueTouch);
 //缓存
@@ -89,5 +90,9 @@ Vue.config.productionTip = false
 
 
 new Vue({
+  router: router,
   render: h => h(App),
+  components:{
+    App
+  }
 }).$mount('#app')
