@@ -1,4 +1,4 @@
-# hospital-assistant
+# diagnosis-assistant
 
 ## Project setup
 ```
