@@ -1,14 +1,22 @@
 <template>
-    <div class="home-layout" v-loading="fanyiLoading" :class="isIos?'h-ios home-layout':'home-layout'">
+    <div class="content">
+        <Interpretation />
+        <Portrait v-bind:userId="userId"/>
+        <div class="home-layout" v-loading="fanyiLoading" :class="isIos?'h-ios home-layout':'home-layout'">
         <el-dialog
                 title="评测指标"
                 :visible.sync="centerDialogVisible"
                 width="80%"
                 center>
-            <li style="color: gray">{{metrics[0]}}</li>
-            <li style="color: gray">{{metrics[1]}}</li>
-            <li style="color: gray">{{metrics[2]}}</li>
-            <li style="color: gray">{{metrics[3]}}</li>
+            <div v-for="(metric,index) in metrics">
+                <li style="color: gray; width: 100%;">{{metric}}</li>
+                <div v-if="examples[index]" style="background-color: #deebed;padding: 20px;color: gray;margin: 10px">
+                    <div><i class="el-icon-success" style="color:#67C23A; "></i> 正例</div>
+                    <div style="white-space: pre-line;">{{examples[index]["right"]}}</div>
+                    <div><i class="el-icon-error" style="color: #E6A23C "></i> 反例</div>
+                    <div style="white-space: pre-line">{{examples[index]["wrong"]}}</div>
+                </div>
+            </div>
         </el-dialog>
         <el-dialog
                 title="对话体验评价"
@@ -142,21 +150,25 @@
             <div>上滑取消</div>
         </div>
     </div>
+    </div>
 </template>
 
 <script>
     import question from "../mock/index";
-    import {baseUrl, browserRedirect, metrics} from "../util/index";
+    import {baseUrl, browserRedirect, examples, metrics} from "../util/index";
     import axios from "axios";
     import moment from "moment";
     import {recOpen, recStop, audios} from './recorder';
     import Report from "./Report";
     import $ from 'jquery'
+    import Interpretation from "./Interpretation";
+    import Portrait from "./Portrait";
+
     //document.getElementById('zhezhao').style.display="";
 
 
     export default {
-        components: {Report},
+        components: {Interpretation, Portrait, Report},
         data() {
             return {
                 isPc: true,
@@ -223,58 +235,67 @@
                     score4: 0,
                 },
                 scoreDialogVisible: false,
-                metrics: metrics
+                metrics: metrics,
+                userId: -1,
+                examples: examples
             };
         },
 
         watch: {
 
-            msg(val) {
-                if (this.msg.length === 0 || this.msg == null) {
-                    this.mindView = false;
-                    return;
-                }
-                this.mindList = [];
-                let url = baseUrl + "/WxService/DataExchange?query=";
-                url += this.msg;
-                axios
-                    .get(url)
-                    .then((res) => {
-                        //console.log('!');
-                        if (this.msg && this.msg.length > 0) {
-                            this.mindView = true;
-                            //console.log('!');
-                            this.mindList = [];
-                            if (res && res.data && res.data.result) {
-                                let list = res.data.result;
-                                list.forEach((e) => {
-                                    let index = e.question.indexOf(this.msg);
-                                    this.mindList.push({
-                                        value: e.question,
-                                        list: [
-                                            index === 0 ? "" : e.question.substring(0, index),
-                                            this.msg,
-                                            index === e.question.length
-                                                ? ""
-                                                : e.question.substring(
-                                                index + this.msg.length,
-                                                e.question.length
-                                                ),
-                                        ],
-                                    });
-                                });
-                            } else {
-                                this.mindView = false;
-                            }
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            },
+            // msg(val) {
+            //     if (this.msg.length === 0 || this.msg == null) {
+            //         this.mindView = false;
+            //         return;
+            //     }
+            //     this.mindList = [];
+            //     let url = baseUrl + "/WxService/DataExchange?query=";
+            //     url += this.msg;
+            //     axios
+            //         .get(url)
+            //         .then((res) => {
+            //             //console.log('!');
+            //             if (this.msg && this.msg.length > 0) {
+            //                 this.mindView = true;
+            //                 //console.log('!');
+            //                 this.mindList = [];
+            //                 if (res && res.data && res.data.result) {
+            //                     let list = res.data.result;
+            //                     list.forEach((e) => {
+            //                         let index = e.question.indexOf(this.msg);
+            //                         this.mindList.push({
+            //                             value: e.question,
+            //                             list: [
+            //                                 index === 0 ? "" : e.question.substring(0, index),
+            //                                 this.msg,
+            //                                 index === e.question.length
+            //                                     ? ""
+            //                                     : e.question.substring(
+            //                                     index + this.msg.length,
+            //                                     e.question.length
+            //                                     ),
+            //                             ],
+            //                         });
+            //                     });
+            //                 } else {
+            //                     this.mindView = false;
+            //                 }
+            //             }
+            //         })
+            //         .catch((err) => {
+            //             console.log(err);
+            //         });
+            // },
         },
 
         methods: {
+            async init(){
+                this.$router.onReady(() => {
+                    console.log(this.$route.query.userId);
+                    this.userId = this.$route.query.userId;
+
+                });
+            },
             openScoreWindow(){
 
                 if(this.context.length<20){
@@ -699,6 +720,7 @@
 
         created() {
             //判断是否微信
+            this.init()
             let ua = navigator.userAgent.toLowerCase();
             let isWeixin = ua.indexOf('micromessenger') !== -1;
             console.log('isweixin', isWeixin);
@@ -849,6 +871,8 @@
             window.addEventListener("pagehide", function () {
                 localStorage.setItem("aiHistory3", JSON.stringify(that.list));
             }, false);
+
+            this.init()
         },
 
 

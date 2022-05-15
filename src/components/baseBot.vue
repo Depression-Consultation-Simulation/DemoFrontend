@@ -1,198 +1,212 @@
 <template>
-    <div class="home-layout" v-loading="fanyiLoading" :class="isIos?'h-ios home-layout':'home-layout'">
-        <!-- 用户须知 -->
-        <el-dialog
-                title="评测指标"
-                :visible.sync="centerDialogVisible"
-                width="80%"
-                center>
-            <li style="color: gray">{{metrics[0]}}</li>
-            <li style="color: gray">{{metrics[1]}}</li>
-            <li style="color: gray">{{metrics[2]}}</li>
-            <li style="color: gray">{{metrics[3]}}</li>
-        </el-dialog>
-        <el-dialog
-                title="对话体验评价"
-                :visible.sync="scoreDialogVisible"
-                width="80%"
-                center>
-            <div style="padding-left:10%;padding-right: 10%;margin-bottom: 20px;color: grey">您可暂时关闭该窗口，复盘对话后，点击绿色按钮可以再次打开</div>
-            <el-form ref="form" :model="score_bot1" style="padding-left:8%;padding-right: 8%">
-                <el-form-item>
-                    <li >1. {{metrics[0]}}</li>
-                    <el-slider
-                            v-model="score_bot1.score1"
-                            :step="1"
-                            :max="5"
-                            style="width: 80%;margin-left:5%"
-                            show-stops>
-                    </el-slider>
-                </el-form-item>
-                <el-form-item >
-                    <li> 2. {{metrics[1]}}</li>
-                    <el-slider
-                            v-model="score_bot1.score2"
-                            :step="1"
-                            :max = "5"
-                            style="width: 80%;margin-left:5%"
-                            show-stops>
-                    </el-slider>
-                </el-form-item>
-                <el-form-item >
-                    <li>3. {{metrics[2]}}</li>
-                    <el-slider
-                            v-model="score_bot1.score3"
-                            :step="1"
-                            :max = "5"
-                            style="width: 80%;margin-left:5%"
-                            show-stops>
-                    </el-slider>
-                </el-form-item>
-                <el-form-item >
-                    <li>4. {{metrics[3]}}</li>
-                    <el-slider
-                            v-model="score_bot1.score4"
-                            :step="1"
-                            :max = "5"
-                            style="width: 80%;margin-left:5%"
-                            show-stops>
-                    </el-slider>
-                </el-form-item>
-            </el-form>
-            <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="onSubmit">提 交</el-button>
-            </span>
-<!--            <el-button type="primary" @click="onSubmit">提交</el-button>-->
-        </el-dialog>
-        <div class="h-body" id="hBody">
-            <div @click="clearData" class="delete-talk">
-                <i class="el-icon-delete"></i>
-            </div>
-            <div @click="centerDialogVisible = true" class="delete-talk2">
-                <i class="el-icon-question"></i>
-            </div>
-            <div @click="openScoreWindow" class="delete-talk3">
-                <i class="el-icon-score">&#9733;</i>
-            </div>
-            <!-- 对话 -->
-            <div
-                    :class="item.sign === 'vioce' || item.sign === 'msg' ? 'right-msg' : ''"
-                    v-for="(item, index) of list"
-                    :key="index + 'ds'"
-            >
-                <div v-if="item.time" class="time">
-                    {{ item.time }}
-                </div>
-
-
-                <!-- bot -->
-                <img v-if="(item.sign == null || item.sign === 'first') && item.items == null" :src="img.left" class="userImg"/>
-                <!-- 导语 -->
-                <div class="txt1" v-if="item.sign === 'first'">
-                    <div>
-                        hi～我是心理健康助手小驰<b style="color: #9abdf9">一号</b>，可以对我说"开始吧"进入抑郁症问诊流程
+    <div class="content">
+        <Interpretation />
+        <Portrait v-bind:userId="userId"/>
+        <div class="home-layout" v-loading="fanyiLoading" :class="isIos?'h-ios home-layout':'home-layout'">
+            <!-- 用户须知 -->
+            <el-dialog
+                    title="评测指标"
+                    :visible.sync="centerDialogVisible"
+                    width="80%"
+                    center>
+                <div v-for="(metric,index) in metrics">
+                    <li style="color: gray; width: 100%;">{{metric}}</li>
+                    <div v-if="examples[index]" style="background-color: #deebed;padding: 20px;color: gray;margin: 10px">
+                        <div><i class="el-icon-success" style="color:#67C23A; "></i> 正例</div>
+                        <div style="white-space: pre-line;">{{examples[index]["right"]}}</div>
+                        <div><i class="el-icon-error" style="color: #E6A23C "></i> 反例</div>
+                        <div style="white-space: pre-line">{{examples[index]["wrong"]}}</div>
                     </div>
                 </div>
+            </el-dialog>
+            <el-dialog
+                    title="对话体验评价"
+                    :visible.sync="scoreDialogVisible"
+                    width="80%"
+                    center>
+                <div style="padding-left:10%;padding-right: 10%;margin-bottom: 20px;color: grey">您可暂时关闭该窗口，复盘对话后，点击绿色按钮可以再次打开</div>
+                <el-form ref="form" :model="score_bot1" style="padding-left:8%;padding-right: 8%">
+                    <el-form-item>
+                        <li >1. {{metrics[0]}}</li>
+                        <el-slider
+                                v-model="score_bot1.score1"
+                                :step="1"
+                                :max="5"
+                                style="width: 80%;margin-left:5%"
+                                show-stops>
+                        </el-slider>
+                    </el-form-item>
+                    <el-form-item >
+                        <li> 2. {{metrics[1]}}</li>
+                        <el-slider
+                                v-model="score_bot1.score2"
+                                :step="1"
+                                :max = "5"
+                                style="width: 80%;margin-left:5%"
+                                show-stops>
+                        </el-slider>
+                    </el-form-item>
+                    <el-form-item >
+                        <li>3. {{metrics[2]}}</li>
+                        <el-slider
+                                v-model="score_bot1.score3"
+                                :step="1"
+                                :max = "5"
+                                style="width: 80%;margin-left:5%"
+                                show-stops>
+                        </el-slider>
+                    </el-form-item>
+                    <el-form-item >
+                        <li>4. {{metrics[3]}}</li>
+                        <el-slider
+                                v-model="score_bot1.score4"
+                                :step="1"
+                                :max = "5"
+                                style="width: 80%;margin-left:5%"
+                                show-stops>
+                        </el-slider>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="onSubmit">提 交</el-button>
+                </span>
+    <!--            <el-button type="primary" @click="onSubmit">提交</el-button>-->
+            </el-dialog>
+            <div class="h-body" id="hBody">
+                <div @click="clearData" class="delete-talk">
+                    <i class="el-icon-delete"></i>
+                </div>
+                <div @click="centerDialogVisible = true" class="delete-talk2">
+                    <i class="el-icon-question"></i>
+                </div>
+                <div @click="openScoreWindow" class="delete-talk3">
+                    <i class="el-icon-score">&#9733;</i>
+                </div>
+                <!-- 对话 -->
                 <div
-                        @click="playVioce(index, item.sign)"
-                        v-if="item.sign !== 'first'"
-                        :class="item.sign == null ? item.imageUrl!=null?'emoji':item.items != null?'report':'txt1' : 'txt'"
+                        :class="item.sign === 'vioce' || item.sign === 'msg' ? 'right-msg' : ''"
+                        v-for="(item, index) of list"
+                        :key="index + 'ds'"
                 >
-                    <!-- sign为空表示智能回答，voice为语音咨询，msg为文字咨询 -->
-                    <div style="display: flex; text-align: right" v-if="item && item.sign == 'vioce'">
-<!--                        <div style="margin-left: 10px">{{ item.lengths }}"</div>-->
-<!--                        <img class="playImg"-->
-<!--                             :src="audioId !== item.id?require('../assets/msgLInk1.png'):require('../assets/msgLInk0.png')">-->
+                    <div v-if="item.time" class="time">
+                        {{ item.time }}
                     </div>
 
-                    <span style="position: relative" v-else-if="item.sign == 'msg' || item.qes === true">
-                        <span >{{ item.msg }}</span>
-                        <br v-if="item.link && item.msg"/>
-<!--                        <span @click.stop="playOtherUrl(item)" v-if="item.linkId && item.msg" class="otherSpan">-->
-<!--                            <img class="play-icon1"-->
-<!--                                 :src="audioTwoId !== item.linkId ? require('../assets/block2.png'):require('../assets/black1.png')">-->
-<!--                            <img class="play-icon" :src="require('../assets/block3.png')">-->
-                            <!--            <i @click="playOtherUrl(item)" v-if="item.linkId && item.msg" class="el-icon-video-play play-icon"></i>-->
-<!--                        </span>-->
 
-                        <!-- 图片 -->
-                        <img v-if="item.imageUrl" :src="item.imageUrl" style="width: 8rem"/>
-                        <!-- 报告 -->
-                        <report v-if="item.items" v-bind:items="item.items" v-bind:description="item.description"/>
-                        <!-- 选择 -->
-                        <div v-if="item.sign == null && item.selections&&index === list.length-1"
-                             style="padding: 5px 10px;margin-top: 5px">
-<!--                            <div style="font-size: small;color: #6c6c6c">既可以点选也可以直接用语音或者文字的方式输入哦</div>-->
-                            <el-checkbox-group v-model="selectedList">
-                                <el-col>
-                                    <el-col :xs="12">
-                                        <el-checkbox v-for="item in item.selections" :label="item.content" :key="item.content"
-                                                     style="margin-top: 10px;">{{item.content}}</el-checkbox>
-                                    </el-col>
-                                </el-col>
-                            </el-checkbox-group>
-                            <el-row v-if="item.selections"
-                                    style="margin-top: 30px;display:flex;justify-content: flex-end;align-items: center;width: 100%;">
-                                <el-col :span="6">
-                                    <el-button type="primary" style="height: 60%;background-color: #81acf8;margin-top: 10px"
-                                               @click="sumbitCheckbox" size="small">确定</el-button>
-                                </el-col>
-                            </el-row>
+                    <!-- bot -->
+                    <img v-if="(item.sign == null || item.sign === 'first') && item.items == null" :src="img.left" class="userImg"/>
+                    <!-- 导语 -->
+                    <div class="txt1" v-if="item.sign === 'first'">
+                        <div>
+                            hi～我是心理健康助手小驰<b style="color: #9abdf9">一号</b>，可以对我说"开始吧"进入抑郁症问诊流程
+                        </div>
+                    </div>
+                    <div
+                            @click="playVioce(index, item.sign)"
+                            v-if="item.sign !== 'first'"
+                            :class="item.sign == null ? item.imageUrl!=null?'emoji':item.items != null?'report':'txt1' : 'txt'"
+                    >
+                        <!-- sign为空表示智能回答，voice为语音咨询，msg为文字咨询 -->
+                        <div style="display: flex; text-align: right" v-if="item && item.sign == 'vioce'">
+    <!--                        <div style="margin-left: 10px">{{ item.lengths }}"</div>-->
+    <!--                        <img class="playImg"-->
+    <!--                             :src="audioId !== item.id?require('../assets/msgLInk1.png'):require('../assets/msgLInk0.png')">-->
                         </div>
 
-                    </span>
-                </div>
+                        <span style="position: relative" v-else-if="item.sign === 'msg' || item.qes === true">
+<!--                            <span>{{ item.msg }}</span>-->
+                            <span v-if="item.msg.indexOf('选项来回答我')===-1">{{ item.msg }}</span>
+                            <span v-else>小驰没有听懂哦，可以参考选项来回答我</span>
+<!--                            <span>{{item.msg}}</span>-->
+                            <br v-if="item.link && item.msg"/>
+    <!--                        <span @click.stop="playOtherUrl(item)" v-if="item.linkId && item.msg" class="otherSpan">-->
+    <!--                            <img class="play-icon1"-->
+    <!--                                 :src="audioTwoId !== item.linkId ? require('../assets/block2.png'):require('../assets/black1.png')">-->
+    <!--                            <img class="play-icon" :src="require('../assets/block3.png')">-->
+                                <!--            <i @click="playOtherUrl(item)" v-if="item.linkId && item.msg" class="el-icon-video-play play-icon"></i>-->
+    <!--                        </span>-->
 
-                <!-- user -->
-                <img v-if="item.sign != null && item.sign !== 'first'" :src="img.right" class="userImg"/>
+                            <!-- 图片 -->
+                            <img v-if="item.imageUrl" :src="item.imageUrl" style="width: 8rem"/>
+                            <!-- 报告 -->
+                            <report v-if="item.items" v-bind:items="item.items" v-bind:description="item.description"/>
+                            <!-- 选择 -->
+                            <div v-if="item.sign == null && item.selections&&index === list.length-1&&(item.msg.indexOf('持续了多久')!==-1||item.msg.indexOf('经历以下事件')!==-1||item.msg.indexOf('选项来回答我')!==-1)"
+                                 style="padding: 5px 10px;margin-top: 5px">
+    <!--                            <div style="font-size: small;color: #6c6c6c">既可以点选也可以直接用语音或者文字的方式输入哦</div>-->
+                                <el-checkbox-group v-model="selectedList">
+                                    <el-col>
+                                        <el-col :xs="12">
+                                            <el-checkbox v-for="item in item.selections" :label="item.content" :key="item.content"
+                                                         style="margin-top: 10px;">{{item.content}}</el-checkbox>
+                                        </el-col>
+                                    </el-col>
+                                </el-checkbox-group>
+                                <el-row v-if="item.selections"
+                                        style="margin-top: 30px;display:flex;justify-content: flex-end;align-items: center;width: 100%;">
+                                    <el-col :span="6">
+                                        <el-button type="primary" style="height: 60%;background-color: #81acf8;margin-top: 10px"
+                                                   @click="sumbitCheckbox" size="small">确定</el-button>
+                                    </el-col>
+                                </el-row>
+                            </div>
 
-                <div
-                        v-if="item.sign == 'vioce' && item.msg && item.msg.length > 0"
-                        class="fanyi"
-                >
-                    <div>{{ item.msg }}</div>
+                        </span>
+                    </div>
+
+                    <!-- user -->
+                    <img v-if="item.sign != null && item.sign !== 'first'" :src="img.right" class="userImg"/>
+
+<!--                    <div-->
+<!--                            v-if="item.sign == 'vioce' && item.msg && item.msg.length > 0"-->
+<!--                            class="fanyi"-->
+<!--                    >-->
+<!--                        <div>{{ item.msg }}</div>-->
+<!--                    </div>-->
                 </div>
             </div>
-        </div>
 
-        <div class="h-foot">
-<!--            <img-->
-<!--                    @click="changeTab"-->
-<!--                    :src="keyState ? img.vioce : img.keys"-->
-<!--                    style="width: 2.5rem;height: 2.5rem"-->
-<!--            />-->
-<!--            <div class="btn-parent" v-show="!keyState">-->
-<!--                <el-button @mousedown.native="enter1" @mouseup.native="leave1" v-swipeup="cancelSend"-->
-<!--                           @touchstart.native="enter" @touchend.native="leave"><strong>{{ loading ? "松开 发送" : "按住 说话" }}</strong></el-button>-->
-<!--            </div>-->
-            <el-input
-                    v-show="keyState"
-                    placeholder="请输入"
-                    v-model="msg"
-                    @keyup.enter.native="sendMsg(undefined, undefined, 'jl')"
-            ></el-input>
-            <img :src="img.send" @click="sendMsg(undefined, undefined, 'jl')"/>
-        </div>
+            <div class="h-foot">
+    <!--            <img-->
+    <!--                    @click="changeTab"-->
+    <!--                    :src="keyState ? img.vioce : img.keys"-->
+    <!--                    style="width: 2.5rem;height: 2.5rem"-->
+    <!--            />-->
+    <!--            <div class="btn-parent" v-show="!keyState">-->
+    <!--                <el-button @mousedown.native="enter1" @mouseup.native="leave1" v-swipeup="cancelSend"-->
+    <!--                           @touchstart.native="enter" @touchend.native="leave"><strong>{{ loading ? "松开 发送" : "按住 说话" }}</strong></el-button>-->
+    <!--            </div>-->
+                <el-input
+                        v-show="keyState"
+                        placeholder="请输入"
+                        v-model="msg"
+                        @keyup.enter.native="sendMsg(undefined, undefined, 'jl')"
+                ></el-input>
+                <img :src="img.send" @click="sendMsg(undefined, undefined, 'jl')"/>
+            </div>
 
-        <!-- 弹框 -->
-        <div v-if="loading" class="vioce-model">
-            <img :src="vioceImgList[gifImg]"/>
-            <div>上滑取消</div>
-        </div>
+            <!-- 弹框 -->
+            <div v-if="loading" class="vioce-model">
+                <img :src="vioceImgList[gifImg]"/>
+                <div>上滑取消</div>
+            </div>
 
+        </div>
     </div>
 </template>
 
 <script>
     import question from "../mock/index";
-    import {baseUrl, serverUrl, browserRedirect, metrics} from "../util/index";
+    import {baseUrl, serverUrl, browserRedirect, metrics, examples} from "../util/index";
     import axios from "axios";
     import moment from "moment";
     import {recOpen, recStop, audios} from './recorder';
     import Report from "./Report";
+    import Portrait from "./Portrait";
+    import Interpretation from "./Interpretation";
 
     export default {
-        components: {Report},
+        components: {Interpretation, Portrait, Report},
         data() {
             return {
                 //jiaxuan add start
@@ -262,55 +276,64 @@
                     score4: 0
                 },
                 context: [],
-                metrics: metrics
+                metrics: metrics,
+                userId: -1,
+                examples: examples
             };
         },
 
         watch: {
-            msg(val) {
-                if (this.msg.length === 0 || this.msg == null) {
-                    this.mindView = false;
-                    return;
-                }
-                this.mindList = [];
-                let url = serverUrl + "/WxService/DataExchange?query=";
-                url += this.msg;
-                axios
-                    .get(url)
-                    .then((res) => {
-                        if (this.msg && this.msg.length > 0) {
-                            this.mindView = true;
-                            this.mindList = [];
-                            if (res && res.data && res.data.result) {
-                                let list = res.data.result;
-                                list.forEach((e) => {
-                                    let index = e.question.indexOf(this.msg);
-                                    this.mindList.push({
-                                        value: e.question,
-                                        list: [
-                                            index === 0 ? "" : e.question.substring(0, index),
-                                            this.msg,
-                                            index === e.question.length
-                                                ? ""
-                                                : e.question.substring(
-                                                index + this.msg.length,
-                                                e.question.length
-                                                ),
-                                        ],
-                                    });
-                                });
-                            } else {
-                                this.mindView = false;
-                            }
-                        }
-                    })
-                    .catch((err) => {
-                        console.log(err);
-                    });
-            },
+            // msg(val) {
+            //     if (this.msg.length === 0 || this.msg == null) {
+            //         this.mindView = false;
+            //         return;
+            //     }
+            //     this.mindList = [];
+            //     let url = serverUrl + "/WxService/DataExchange?query=";
+            //     url += this.msg;
+            //     axios
+            //         .get(url)
+            //         .then((res) => {
+            //             if (this.msg && this.msg.length > 0) {
+            //                 this.mindView = true;
+            //                 this.mindList = [];
+            //                 if (res && res.data && res.data.result) {
+            //                     let list = res.data.result;
+            //                     list.forEach((e) => {
+            //                         let index = e.question.indexOf(this.msg);
+            //                         this.mindList.push({
+            //                             value: e.question,
+            //                             list: [
+            //                                 index === 0 ? "" : e.question.substring(0, index),
+            //                                 this.msg,
+            //                                 index === e.question.length
+            //                                     ? ""
+            //                                     : e.question.substring(
+            //                                     index + this.msg.length,
+            //                                     e.question.length
+            //                                     ),
+            //                             ],
+            //                         });
+            //                     });
+            //                 } else {
+            //                     this.mindView = false;
+            //                 }
+            //             }
+            //         })
+            //         .catch((err) => {
+            //             console.log(err);
+            //         });
+            // },
         },
 
         methods: {
+            async init(){
+                this.$router.onReady(() => {
+                    console.log(this.$route.query.userId);
+                    this.userId = this.$route.query.userId;
+
+                });
+            },
             openScoreWindow(){
 
                 if(this.context.length<20){
@@ -587,7 +610,8 @@
                             let report = {};
                             if (res.data.dm.widget != null) {
                                 if (res.data.dm.widget.type === "custom") {
-                                    if (res.data.dm.widget.symptoms) obj.selections = res.data.dm.widget.symptoms
+                                    if (res.data.dm.widget.symptoms)
+                                        obj.selections = res.data.dm.widget.symptoms
                                     else {
                                         report.items = res.data.dm.widget.items;
                                         report.description = res.data.dm.widget.description;
@@ -604,15 +628,15 @@
                                         if (res.data.dm.widget.list[i].type === "selection") {
                                             obj.selections = res.data.dm.widget.list[i].symptoms;
                                         } else {
-                                            let image = {};
-                                            image.imageUrl = res.data.dm.widget.list[i].url;
-                                            console.log(image);
-                                            image.qes = true;
-                                            image.oldIndex = index;
-                                            image.year = this.getTime('year');
-                                            image.time0 = this.getTime(); //咨询返回不需要添加时间
-
-                                            this.list.push(image);
+                                            // let image = {};
+                                            // image.imageUrl = res.data.dm.widget.list[i].url;
+                                            // console.log(image);
+                                            // image.qes = true;
+                                            // image.oldIndex = index;
+                                            // image.year = this.getTime('year');
+                                            // image.time0 = this.getTime(); //咨询返回不需要添加时间
+                                            //
+                                            // this.list.push(image);
                                         }
                                     }
                                 }
@@ -646,7 +670,7 @@
                                 this.pushHistory("doctor",obj.msg);
                                 this.list.push(obj);
                                 this.setFoot();
-                                if (report.items) this.list.push(report);
+                                // if (report.items) this.list.push(report);
                                 console.log("push");
                             } else if (res.data.dm.speak) {
                                 if (report.items) {
@@ -656,7 +680,7 @@
                                     console.log(obj1);
                                     this.pushHistory("doctor",obj1.msg);
                                     this.list.push(obj1);
-                                    this.list.push(report);
+                                    // this.list.push(report);
                                     let obj2 = Object.assign({}, obj);
                                     obj2.msg = res.data.dm.speak.list[1].text;
                                     obj2.link = res.data.dm.speak.list[1].speakUrl;
@@ -1054,6 +1078,7 @@
             console.log('isweixin', isWeixin);
             this.isWeixin = isWeixin;
             let obj = JSON.parse(localStorage.getItem("aiHistory1"));
+            this.init();
             //test
             // list: [
             //   {name: '1'},
@@ -1168,6 +1193,7 @@
             window.addEventListener("pagehide", function () {
                 localStorage.setItem("aiHistory1", JSON.stringify(that.list));
             }, false);
+            this.init()
         },
 
     };

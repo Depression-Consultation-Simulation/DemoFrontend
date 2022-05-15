@@ -427,7 +427,12 @@ body,
         opacity: 1 !important;
     }
 }
+.content{
+    display: flex;
+    flex-direction: row;
+    height: 100%;
 
+}
 .h-ios{
     .h-body{
         height: calc(100% - 8rem) !important;
